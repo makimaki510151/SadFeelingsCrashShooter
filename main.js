@@ -32,6 +32,9 @@ let damageFlashTimer = 0;
 let damageTextTimer = 0;
 const AUTO_FIRE_INTERVAL = 0.14;
 const ENEMY_BREAK_THRESHOLD = 0.80;
+const GAMEPAD_AXIS_DEADZONE = 0.15;
+const GAMEPAD_CONFIRM_BUTTONS = [0, 9]; // A or Start
+let prevPadButtonStates = [];
 
 const player = {
   x: W * 0.5,
@@ -181,12 +184,47 @@ function updateInput(dt) {
   const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
   const pad = gamepads[0];
   if (pad) {
-    const stick = Math.abs(pad.axes[0]) > 0.15 ? pad.axes[0] : 0;
+    const stick = Math.abs(pad.axes[0]) > GAMEPAD_AXIS_DEADZONE ? pad.axes[0] : 0;
     axis += stick;
   }
 
   player.x += axis * player.speed * dt;
   player.x = clamp(player.x, 26, W - 26);
+}
+
+function updatePadButtonStates() {
+  const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+  const pad = gamepads[0];
+  const justPressed = new Set();
+  const nextStates = [];
+
+  if (pad && pad.buttons) {
+    for (let i = 0; i < pad.buttons.length; i++) {
+      const pressed = !!pad.buttons[i]?.pressed;
+      nextStates[i] = pressed;
+      if (pressed && !prevPadButtonStates[i]) {
+        justPressed.add(i);
+      }
+    }
+  }
+
+  prevPadButtonStates = nextStates;
+  return justPressed;
+}
+
+function handleGamepadUiActions() {
+  const justPressed = updatePadButtonStates();
+  const confirmPressed = GAMEPAD_CONFIRM_BUTTONS.some((idx) => justPressed.has(idx));
+  if (!confirmPressed) return;
+
+  if (!gameStarted) {
+    startGame();
+    return;
+  }
+
+  if (gameOver) {
+    resetGame();
+  }
 }
 
 function updateBullets(dt) {
@@ -327,7 +365,7 @@ function drawGameOver() {
   ctx.fillText("GAME OVER", W / 2, H / 2 - 24);
   ctx.font = '700 26px "Meiryo", sans-serif';
   ctx.fillStyle = "#d7ebff";
-  ctx.fillText("Rキーでリスタート", W / 2, H / 2 + 30);
+  ctx.fillText("Rキー / A / STARTでリスタート", W / 2, H / 2 + 30);
 }
 
 function drawStartOverlay() {
@@ -341,7 +379,7 @@ function drawStartOverlay() {
   ctx.fillText("クラッシュシューター", W * 0.5, H * 0.46);
   ctx.font = '700 24px "Meiryo", sans-serif';
   ctx.fillStyle = "#d7ebff";
-  ctx.fillText("タップ / キー入力でスタート", W * 0.5, H * 0.56);
+  ctx.fillText("タップ / キー入力 / A / STARTでスタート", W * 0.5, H * 0.56);
 }
 
 function resetGame() {
@@ -364,6 +402,7 @@ function loop(now) {
   lastTime = now;
 
   ctx.clearRect(0, 0, W, H);
+  handleGamepadUiActions();
 
   if (!gameStarted) {
     drawPlayer();
