@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>悲しい気持ちクラッシュシューター</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        background: #0a0d15;
+        color: #d7def0;
+        font-family: "Yu Gothic UI", "Meiryo", sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        touch-action: manipulation;
+        overflow: hidden;
+      }
+      .wrap {
+        width: min(640px, 100vw, calc((100dvh - 170px) * 9 / 16));
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      canvas {
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        background: linear-gradient(#0d1220, #05070f);
+        border: 1px solid #22314e;
+        image-rendering: pixelated;
+        touch-action: none;
+      }
+      .help {
+        margin-top: 8px;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+      .help kbd {
+        background: #11182a;
+        border: 1px solid #2c3f66;
+        border-radius: 4px;
+        padding: 1px 6px;
+      }
+      .mobile-controls {
+        display: none;
+        margin-top: 10px;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .mobile-controls button {
+        appearance: none;
+        border: 1px solid #2b406b;
+        background: #121b2f;
+        color: #dbe8ff;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: 700;
+        min-height: 56px;
+        touch-action: manipulation;
+      }
+      #btn-left,
+      #btn-right {
+        width: 28vw;
+        max-width: 180px;
+      }
+      #btn-restart {
+        width: 78px;
+        min-height: 40px;
+        font-size: 11px;
+        opacity: 0.8;
+      }
+      @media (max-width: 860px) {
+        .wrap {
+          width: min(100vw, calc((100dvh - 150px) * 9 / 16));
+          padding: 8px;
+          box-sizing: border-box;
+        }
+        .help {
+          font-size: 12px;
+        }
+        .mobile-controls {
+          display: flex;
+        }
+        #btn-left {
+          order: 1;
+        }
+        #btn-right {
+          order: 3;
+        }
+        #btn-restart {
+          order: 2;
+          margin-top: -22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <canvas id="game" width="540" height="960" aria-label="moji shooting game"></canvas>
+      <div class="mobile-controls" aria-label="mobile controls">
+        <button id="btn-left" type="button">◀</button>
+        <button id="btn-right" type="button">▶</button>
+        <button id="btn-restart" type="button">リスタート</button>
+      </div>
+      <div class="help">
+        移動: <kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> / 左スティック |
+        発射: 自動連射 | リスタート: <kbd>R</kbd> / 画面ボタン
+      </div>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>
